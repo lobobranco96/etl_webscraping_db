@@ -21,7 +21,7 @@ Os dados coletados são então armazenados em arquivos CSV para posterior análi
 - Certifique-se de ter todas as dependências instaladas (consulte a seção de Bibliotecas Utilizadas).
 - Execute o script Python fornecido neste repositório.
 - Os arquivos CSV contendo os dados extraídos serão salvos no diretório especificado no script.
-- 
+  
 # Notas
 É importante respeitar os termos de uso do site da Kabum ao realizar web scraping e não sobrecarregar o servidor com solicitações excessivas.
 Este script foi desenvolvido apenas para fins educacionais e de demonstração. Se você planeja usar web scraping em um ambiente de produção, é importante garantir que esteja em conformidade com as políticas do site alvo.

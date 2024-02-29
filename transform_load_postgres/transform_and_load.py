@@ -82,6 +82,7 @@ for arquivo in os.listdir(diretorio):
             # Adicionar o nome do arquivo à lista
         arquivos_csv.append(arquivo[:-4])
 
+# Lógica para criar uma conexão com o banco de dados PostgreSQL
 def get_engine(user, passwd, host, port, db):
     """
     Esta função retorna um objeto de conexão com o banco de dados PostgreSQL.
@@ -103,14 +104,17 @@ def get_engine(user, passwd, host, port, db):
     engine = create_engine(url, echo=True)
     return engine
 
+# Parâmetros de conexão com o banco de dados
 hostname = 'localhost'
 database = 'hardware'
 username = 'postgres'
 pwd = '503645'  # A senha deve ser uma string
 port_id = 5432
 
+# Conectar-se ao banco de dados
 engine = get_engine(username, pwd, hostname, port_id, database)
 
+# Classe base para a criação de tabelas
 Base = declarative_base()
 
 # Função para criar uma classe de tabela dinamicamente
@@ -133,7 +137,7 @@ def criar_classe_tabela(nome_tabela):
         'preco': Column(Float)
     })
 
-# Criar as tabelas se não existirem
+# Função para criar as tabelas no banco de dados se não existirem
 def criar_tabelas(engine):
     """
     Esta função cria as tabelas no banco de dados se elas não existirem.
@@ -147,9 +151,11 @@ def criar_tabelas(engine):
 # Chamar a função para criar as tabelas
 criar_tabelas(engine)
 
+# Criar uma sessão para interagir com o banco de dados
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# Função para adicionar dados de um DataFrame a uma tabela do banco de dados
 def adicionar_to_db(df, table_name):
     """
     Esta função adiciona os dados de um DataFrame a uma tabela do banco de dados.
@@ -163,7 +169,7 @@ def adicionar_to_db(df, table_name):
         user = table_class(nome_produto=row['Nome do produto'], descricao=row['Descrição'], preco=row['Preço em R$'])
         session.add(user)
 
-# lógica para dropar e criar a tabela se já existir
+# Lógica para dropar e criar a tabela se já existir e adicionar dados a ela
 def adicionar_to_db_with_drop(df, table_name, engine):
     """
     Esta função dropa e recria uma tabela no banco de dados se ela já existir, e adiciona os dados de um DataFrame a ela.

@@ -9,6 +9,15 @@ from sqlalchemy_utils import database_exists, create_database
 
 
 def transformar_arquivo_csv(caminho_arquivo):
+    """
+    Esta função lê um arquivo CSV, realiza transformações específicas nos dados e retorna um DataFrame Pandas.
+    
+    Parâmetros:
+    - caminho_arquivo (str): O caminho completo para o arquivo CSV a ser lido.
+    
+    Retorna:
+    - pd.DataFrame: Um DataFrame Pandas com os dados do arquivo CSV, após as transformações.
+    """
     try:
         # Lê o arquivo CSV
         df = pd.read_csv(caminho_arquivo, on_bad_lines='skip', sep=';', header=0, decimal=',')
@@ -32,6 +41,13 @@ def transformar_arquivo_csv(caminho_arquivo):
         return None
 
 def extrar_arquivos():
+    """
+    Esta função extrai todos os arquivos CSV de um diretório, os transforma em DataFrames e os armazena em um dicionário.
+    
+    Retorna:
+    - dict: Um dicionário onde as chaves são os nomes dos arquivos (sem extensão) e os valores são os DataFrames correspondentes.
+    """
+
     lista_df = {}  # Alteração aqui: agora vamos usar um dicionário para armazenar os DataFrames
     
     # Diretório onde estão os arquivos CSV
@@ -67,6 +83,20 @@ for arquivo in os.listdir(diretorio):
         arquivos_csv.append(arquivo[:-4])
 
 def get_engine(user, passwd, host, port, db):
+    """
+    Esta função retorna um objeto de conexão com o banco de dados PostgreSQL.
+    
+    Parâmetros:
+    - user (str): Nome de usuário do banco de dados.
+    - passwd (str): Senha do usuário do banco de dados.
+    - host (str): Endereço do host do banco de dados.
+    - port (int): Número da porta do banco de dados.
+    - db (str): Nome do banco de dados.
+    
+    Retorna:
+    - sqlalchemy.engine.base.Engine: Objeto de conexão com o banco de dados PostgreSQL.
+    """
+
     url = f'postgresql://{user}:{passwd}@{host}:{port}/{db}'
     if not database_exists(url):
         create_database(url)
@@ -85,6 +115,15 @@ Base = declarative_base()
 
 # Função para criar uma classe de tabela dinamicamente
 def criar_classe_tabela(nome_tabela):
+    """
+    Esta função cria uma classe de tabela dinamicamente com base no nome da tabela.
+    
+    Parâmetros:
+    - nome_tabela (str): O nome da tabela.
+    
+    Retorna:
+    - type: Uma classe de tabela.
+    """
     class_name = nome_tabela.capitalize()
     return type(class_name, (Base,), {
         '__tablename__': nome_tabela,
@@ -96,6 +135,13 @@ def criar_classe_tabela(nome_tabela):
 
 # Criar as tabelas se não existirem
 def criar_tabelas(engine):
+    """
+    Esta função cria as tabelas no banco de dados se elas não existirem.
+    
+    Parâmetros:
+    - engine (sqlalchemy.engine.base.Engine): Objeto de conexão com o banco de dados.
+    """
+
     Base.metadata.create_all(engine)
 
 # Chamar a função para criar as tabelas
@@ -105,6 +151,13 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 def adicionar_to_db(df, table_name):
+    """
+    Esta função adiciona os dados de um DataFrame a uma tabela do banco de dados.
+    
+    Parâmetros:
+    - df (pd.DataFrame): O DataFrame contendo os dados a serem adicionados.
+    - table_name (str): O nome da tabela onde os dados serão adicionados.
+    """
     table_class = criar_classe_tabela(table_name)
     for index, row in df.iterrows():
         user = table_class(nome_produto=row['Nome do produto'], descricao=row['Descrição'], preco=row['Preço em R$'])
@@ -112,6 +165,14 @@ def adicionar_to_db(df, table_name):
 
 # lógica para dropar e criar a tabela se já existir
 def adicionar_to_db_with_drop(df, table_name, engine):
+    """
+    Esta função dropa e recria uma tabela no banco de dados se ela já existir, e adiciona os dados de um DataFrame a ela.
+    
+    Parâmetros:
+    - df (pd.DataFrame): O DataFrame contendo os dados a serem adicionados.
+    - table_name (str): O nome da tabela onde os dados serão adicionados.
+    - engine (sqlalchemy.engine.base.Engine): Objeto de conexão com o banco """
+
     inspector = inspect(engine)
     if inspector.has_table(table_name):
         Base.metadata.tables[table_name].drop(engine)
